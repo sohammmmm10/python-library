@@ -1,0 +1,498 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta property="og:title" content="ai-bridge-kit — Verify Authorship"/>
+<meta property="og:description" content="Independently verify that ai-bridge-kit was built and published by Soham Dahivalkar on PyPI."/>
+<title>Verify — ai-bridge-kit by Soham Dahivalkar</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070f;--card:#13131e;--card2:#0f0f1a;--card3:#161624;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --a1:#6366f1;--a2:#8b5cf6;--a3:#06b6d4;--a4:#10b981;--a5:#f59e0b;--a6:#ef4444;
+  --text:#f1f5f9;--muted:#94a3b8;--dim:#475569;--dim2:#334155;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(99,102,241,0.03) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(99,102,241,0.03) 1px,transparent 1px);
+  background-size:52px 52px;pointer-events:none;z-index:0}
+.orb{position:fixed;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0;animation:of 16s ease-in-out infinite alternate}
+.o1{width:700px;height:700px;top:-250px;left:-200px;background:rgba(99,102,241,0.09);animation-delay:0s}
+.o2{width:500px;height:500px;bottom:-200px;right:-150px;background:rgba(16,185,129,0.07);animation-delay:-6s}
+.o3{width:350px;height:350px;top:50%;left:40%;background:rgba(6,182,212,0.06);animation-delay:-11s}
+@keyframes of{from{transform:translate(0,0)}to{transform:translate(20px,30px)}}
+.wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:44px 22px 90px}
+
+/* ── HERO ── */
+.hero{text-align:center;margin-bottom:52px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.28);color:var(--a4);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:6px 18px;border-radius:100px;margin-bottom:24px}
+.eyebrow-dot{width:7px;height:7px;border-radius:50%;background:var(--a4);animation:ep 1.5s ease-in-out infinite}
+@keyframes ep{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.5)}}
+.hero-title{font-size:clamp(32px,5vw,58px);font-weight:900;letter-spacing:-.04em;line-height:1.06;margin-bottom:16px}
+.ggrad{background:linear-gradient(135deg,#a5b4fc 0%,#c4b5fd 30%,#67e8f9 65%,#6ee7b7 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:17px;color:var(--muted);max-width:580px;margin:0 auto 28px;line-height:1.75}
+.hero-sub strong{color:var(--text)}
+.hero-notice{display:inline-flex;align-items:center;gap:10px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:12px 22px;font-size:13px;color:#fcd34d;font-weight:600;line-height:1.5;max-width:560px;text-align:left}
+.notice-icon{font-size:20px;flex-shrink:0}
+
+/* ── PROGRESS TRACKER ── */
+.progress-bar{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:22px 28px;margin-bottom:28px;position:relative;overflow:hidden}
+.progress-bar::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--a1),var(--a2),var(--a3),var(--a4))}
+.pb-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.pb-label{font-size:13px;font-weight:700;color:var(--text)}
+.pb-count{font-size:12px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+.pb-track{height:6px;background:var(--dim2);border-radius:100px;overflow:hidden}
+.pb-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--a1),var(--a4));border-radius:100px;transition:width .5s ease}
+.pb-steps{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.pb-step{padding:4px 12px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.05em;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--dim);transition:all .3s}
+.pb-step.done{background:rgba(16,185,129,0.15);color:var(--a4);border-color:rgba(16,185,129,0.35)}
+
+/* ── VERIFY CARDS ── */
+.vcard{background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;margin-bottom:18px;transition:border-color .25s}
+.vcard.verified{border-color:rgba(16,185,129,0.45);box-shadow:0 0 32px rgba(16,185,129,0.08)}
+.vcard-hdr{padding:22px 26px 0;display:flex;align-items:flex-start;gap:16px}
+.vc-num{width:36px;height:36px;border-radius:11px;background:var(--card3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--dim);flex-shrink:0;transition:all .3s}
+.vcard.verified .vc-num{background:linear-gradient(135deg,rgba(16,185,129,0.25),rgba(6,182,212,0.15));border-color:rgba(16,185,129,0.4);color:var(--a4)}
+.vc-meta{flex:1}
+.vc-tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.vc-title{font-size:17px;font-weight:800;color:var(--text);margin-bottom:4px}
+.vc-subtitle{font-size:12px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+.vc-status{flex-shrink:0;width:28px;height:28px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .35s;background:transparent}
+.vcard.verified .vc-status{background:linear-gradient(135deg,var(--a4),var(--a3));border-color:transparent;box-shadow:0 0 18px rgba(16,185,129,0.4)}
+.vcard-body{padding:18px 26px 22px}
+.vc-desc{font-size:13.5px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.vc-desc strong{color:var(--text)}
+.vc-proof-box{background:var(--card2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.vpb-hdr{background:rgba(99,102,241,0.07);border-bottom:1px solid var(--border);padding:9px 16px;display:flex;align-items:center;gap:7px;font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+.vpb-dots{display:flex;gap:5px}
+.vpd{width:8px;height:8px;border-radius:50%}
+.vpd-r{background:#ff5f57}.vpd-y{background:#febc2e}.vpd-g{background:#28c840}
+.vpb-body{padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.95}
+.vp-prompt{color:var(--a4);margin-right:8px}
+.vp-cmd{color:#67e8f9}
+.vp-out{color:var(--dim)}
+.vp-key{color:#c4b5fd}
+.vp-val{color:#6ee7b7}
+.vp-hash{color:#67e8f9;word-break:break-all;font-size:11px}
+.vc-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.verify-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .2s;text-decoration:none;letter-spacing:.01em}
+.vbtn-primary{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;box-shadow:0 4px 20px rgba(99,102,241,0.35)}
+.vbtn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(99,102,241,0.5)}
+.vbtn-ghost{background:rgba(255,255,255,0.05);color:var(--text);border:1px solid var(--border2)}
+.vbtn-ghost:hover{background:rgba(255,255,255,0.09);transform:translateY(-1px)}
+.vbtn-check{background:rgba(16,185,129,0.12);color:var(--a4);border:1px solid rgba(16,185,129,0.3)}
+.vbtn-check:hover{background:rgba(16,185,129,0.22)}
+.vbtn-check.checked{background:rgba(16,185,129,0.25);box-shadow:0 0 16px rgba(16,185,129,0.3)}
+.vc-confirmed{display:none;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--a4);margin-left:4px}
+.vcard.verified .vc-confirmed{display:flex}
+
+/* ── LIVE DATA PANEL ── */
+.live-panel{background:var(--card);border:1px solid rgba(6,182,212,0.25);border-radius:22px;overflow:hidden;margin-bottom:28px}
+.lp-hdr{background:rgba(6,182,212,0.08);border-bottom:1px solid rgba(6,182,212,0.18);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.lp-title{font-size:13px;font-weight:700;color:var(--a3);letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--a4);animation:ep 1.2s ease-in-out infinite}
+.lp-badge{font-size:10px;background:rgba(6,182,212,0.15);color:var(--a3);padding:3px 10px;border-radius:20px;font-weight:700;border:1px solid rgba(6,182,212,0.3)}
+.lp-body{padding:0}
+.lp-field{display:flex;align-items:stretch;border-bottom:1px solid var(--border)}
+.lp-field:last-child{border-bottom:none}
+.lp-key{padding:14px 20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);background:rgba(255,255,255,0.02);min-width:160px;display:flex;align-items:center;border-right:1px solid var(--border);flex-shrink:0}
+.lp-val{padding:14px 20px;font-size:13px;font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.lp-val.green{color:#6ee7b7}
+.lp-val.purple{color:#a5b4fc}
+.lp-val.gold{color:#fcd34d}
+.lp-val.cyan{color:#67e8f9;font-size:11px;word-break:break-all}
+.lp-loading{color:var(--dim);font-style:italic}
+.lp-chip{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;background:rgba(16,185,129,0.15);color:var(--a4);border:1px solid rgba(16,185,129,0.3);font-family:'Inter',sans-serif}
+
+/* ── FINAL SCORE ── */
+.score-card{background:linear-gradient(135deg,#0f0f1c,#0a0a18);border:1px solid var(--border2);border-radius:24px;padding:44px 36px;text-align:center;position:relative;overflow:hidden;margin-bottom:22px}
+.score-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(16,185,129,0.12) 0%,transparent 60%);pointer-events:none}
+.score-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--a1),var(--a2),var(--a3),var(--a4))}
+.score-ring{width:110px;height:110px;border-radius:50%;border:3px solid rgba(16,185,129,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 20px;background:rgba(16,185,129,0.07);position:relative;z-index:1;transition:all .4s}
+.score-ring.full{border-color:var(--a4);box-shadow:0 0 60px rgba(16,185,129,0.4);animation:scorePulse 2s ease-in-out infinite alternate}
+@keyframes scorePulse{from{box-shadow:0 0 30px rgba(16,185,129,0.2)}to{box-shadow:0 0 80px rgba(16,185,129,0.5)}}
+.score-num{font-size:34px;font-weight:900;color:var(--a4);line-height:1}
+.score-denom{font-size:12px;color:var(--dim);font-weight:600}
+.score-title{font-size:24px;font-weight:900;letter-spacing:-.03em;margin-bottom:8px;position:relative;z-index:1}
+.score-sub{font-size:14px;color:var(--muted);line-height:1.7;max-width:480px;margin:0 auto 24px;position:relative;z-index:1}
+.score-share{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.share-btn{display:inline-flex;align-items:center;gap:7px;padding:11px 24px;border-radius:11px;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s;cursor:pointer;border:none}
+.share-btn:hover{transform:translateY(-2px)}
+.sb-primary{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;box-shadow:0 6px 22px rgba(99,102,241,0.4)}
+.sb-ghost{background:rgba(255,255,255,0.05);color:var(--text);border:1px solid var(--border2)}
+.sb-ghost:hover{background:rgba(255,255,255,0.09)}
+
+@media(max-width:620px){.lp-key{min-width:100px}.vc-actions{flex-direction:column;align-items:flex-start}.score-card{padding:32px 20px}}
+</style>
+</head>
+<body>
+<div class="o1 orb"></div><div class="o2 orb"></div><div class="o3 orb"></div>
+<div class="wrap">
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Public Verification Page</div>
+  <h1 class="hero-title">Who built<br/><span class="ggrad">ai-bridge-kit?</span></h1>
+  <p class="hero-sub">Don't take anyone's word for it. <strong>Verify it yourself</strong> — every source below is live, public and independently checkable by anyone on the internet right now.</p>
+  <div class="hero-notice">
+    <span class="notice-icon">&#128161;</span>
+    <span>You don't need to trust this page. Every proof below links directly to <strong>official third-party sources</strong> — PyPI, Python Package Index, and public APIs. Click and confirm yourself.</span>
+  </div>
+</div>
+
+<!-- PROGRESS TRACKER -->
+<div class="progress-bar" id="progressBar">
+  <div class="pb-top">
+    <span class="pb-label">Your Verification Progress</span>
+    <span class="pb-count" id="pbCount">0 / 5 verified</span>
+  </div>
+  <div class="pb-track"><div class="pb-fill" id="pbFill"></div></div>
+  <div class="pb-steps">
+    <span class="pb-step" id="pbs1">PyPI Page</span>
+    <span class="pb-step" id="pbs2">pip show</span>
+    <span class="pb-step" id="pbs3">Live API</span>
+    <span class="pb-step" id="pbs4">SHA256 Hash</span>
+    <span class="pb-step" id="pbs5">Python Runtime</span>
+  </div>
+</div>
+
+<!-- LIVE DATA PANEL — fetched from PyPI API in real time -->
+<div class="live-panel">
+  <div class="lp-hdr">
+    <span class="lp-title"><span class="live-dot"></span>Live Data — Fetched from PyPI API Right Now</span>
+    <span class="lp-badge" id="apiStatus">Fetching...</span>
+  </div>
+  <div class="lp-body" id="liveBody">
+    <div class="lp-field"><div class="lp-key">Package Name</div><div class="lp-val lp-loading" id="ld-name">loading...</div></div>
+    <div class="lp-field"><div class="lp-key">Author</div><div class="lp-val green lp-loading" id="ld-author">loading...</div></div>
+    <div class="lp-field"><div class="lp-key">Version</div><div class="lp-val purple lp-loading" id="ld-version">loading...</div></div>
+    <div class="lp-field"><div class="lp-key">License</div><div class="lp-val lp-loading" id="ld-license">loading...</div></div>
+    <div class="lp-field"><div class="lp-key">Published</div><div class="lp-val gold lp-loading" id="ld-date">loading...</div></div>
+    <div class="lp-field"><div class="lp-key">SHA256 Hash</div><div class="lp-val cyan lp-loading" id="ld-sha">loading...</div></div>
+    <div class="lp-field"><div class="lp-key">Requires Python</div><div class="lp-val lp-loading" id="ld-py">loading...</div></div>
+    <div class="lp-field"><div class="lp-key">Summary</div><div class="lp-val lp-loading" id="ld-sum">loading...</div></div>
+  </div>
+</div>
+<!-- VERIFY CARD 1 — PyPI Page -->
+<div class="vcard" id="vc1">
+  <div class="vcard-hdr">
+    <div class="vc-num">1</div>
+    <div class="vc-meta">
+      <div class="vc-tag">Verification 01 &mdash; Strongest Source</div>
+      <div class="vc-title">&#128230; Open the Official PyPI Page</div>
+      <div class="vc-subtitle">pypi.org/project/ai-bridge-kit/0.1.0/</div>
+    </div>
+    <div class="vc-status" id="vcs1"></div>
+  </div>
+  <div class="vcard-body">
+    <p class="vc-desc">PyPI is the <strong>official Python Package Index</strong>, maintained by the Python Software Foundation. The author field on a PyPI package can only be set by the person who owns the account and published the package. Open the page below and scroll to <strong>"Meta"</strong> — you will see <strong>Author: Soham Dahivalkar</strong>.</p>
+    <div class="vc-proof-box">
+      <div class="vpb-hdr"><div class="vpb-dots"><div class="vpd vpd-r"></div><div class="vpd vpd-y"></div><div class="vpd vpd-g"></div></div>&nbsp; What you will see on that page</div>
+      <div class="vpb-body">
+        <div><span style="color:#fcd34d">Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</span> <span style="color:#6ee7b7">ai-bridge-kit</span></div>
+        <div><span style="color:#fcd34d">Author &nbsp;&nbsp;&nbsp;:</span> <span style="color:#6ee7b7;font-weight:700">Soham Dahivalkar</span> <span style="color:#475569">&#8592; look for this</span></div>
+        <div><span style="color:#fcd34d">Version &nbsp;&nbsp;:</span> <span style="color:#a5b4fc">0.1.0</span></div>
+        <div><span style="color:#fcd34d">License &nbsp;&nbsp;:</span> <span style="color:#f1f5f9">MIT</span></div>
+        <div><span style="color:#fcd34d">Published :</span> <span style="color:#fcd34d">Apr 10, 2026</span></div>
+      </div>
+    </div>
+    <div class="vc-actions">
+      <a class="verify-btn vbtn-primary" href="https://pypi.org/project/ai-bridge-kit/0.1.0/" target="_blank">&#127760; Open PyPI Page</a>
+      <button class="verify-btn vbtn-check" id="vbtn1" onclick="markVerified(1,'pbs1')">&#10003; I Verified This</button>
+      <span class="vc-confirmed" id="conf1">&#9989; Confirmed by you</span>
+    </div>
+  </div>
+</div>
+
+<!-- VERIFY CARD 2 — pip show -->
+<div class="vcard" id="vc2">
+  <div class="vcard-hdr">
+    <div class="vc-num">2</div>
+    <div class="vc-meta">
+      <div class="vc-tag">Verification 02 &mdash; Globally Runnable</div>
+      <div class="vc-title">&#128187; Run This in Your Own Terminal</div>
+      <div class="vc-subtitle">Works on Windows, Mac, Linux — anyone, anywhere</div>
+    </div>
+    <div class="vc-status" id="vcs2"></div>
+  </div>
+  <div class="vcard-body">
+    <p class="vc-desc">Copy these two commands and run them in <strong>your own terminal</strong>. You are installing the package from PyPI yourself and reading the metadata. No one is showing you a screenshot — <strong>you are seeing it live on your own machine.</strong></p>
+    <div class="vc-proof-box">
+      <div class="vpb-hdr"><div class="vpb-dots"><div class="vpd vpd-r"></div><div class="vpd vpd-y"></div><div class="vpd vpd-g"></div></div>&nbsp; Run these commands yourself</div>
+      <div class="vpb-body">
+        <div><span class="vp-prompt">$</span><span class="vp-cmd">pip install ai-bridge-kit</span></div>
+        <div style="color:#475569;padding-left:16px">Collecting ai-bridge-kit... Successfully installed ai-bridge-kit-0.1.0</div>
+        <div style="margin-top:8px"><span class="vp-prompt">$</span><span class="vp-cmd">pip show ai-bridge-kit</span></div>
+        <div style="padding-left:16px">
+          <div><span class="vp-key">Name &nbsp;&nbsp;&nbsp;&nbsp; :</span> <span class="vp-val">ai-bridge-kit</span></div>
+          <div><span class="vp-key">Version &nbsp; :</span> <span class="vp-val">0.1.0</span></div>
+          <div><span class="vp-key">Author &nbsp;&nbsp;&nbsp;:</span> <span class="vp-val" style="font-weight:700">Soham Dahivalkar</span> <span style="color:#475569">&#8592;</span></div>
+          <div><span class="vp-key">License &nbsp; :</span> <span class="vp-val">MIT</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="vc-actions">
+      <button class="verify-btn vbtn-ghost" onclick="copyCmd(this,'pip install ai-bridge-kit && pip show ai-bridge-kit')">&#128203; Copy Commands</button>
+      <button class="verify-btn vbtn-check" id="vbtn2" onclick="markVerified(2,'pbs2')">&#10003; I Ran It — Verified</button>
+      <span class="vc-confirmed" id="conf2">&#9989; Confirmed by you</span>
+    </div>
+  </div>
+</div>
+
+<!-- VERIFY CARD 3 — Live JSON API -->
+<div class="vcard" id="vc3">
+  <div class="vcard-hdr">
+    <div class="vc-num">3</div>
+    <div class="vc-meta">
+      <div class="vc-tag">Verification 03 &mdash; Machine Readable</div>
+      <div class="vc-title">&#128279; Check the Raw PyPI JSON API</div>
+      <div class="vc-subtitle">pypi.org/pypi/ai-bridge-kit/json</div>
+    </div>
+    <div class="vc-status" id="vcs3"></div>
+  </div>
+  <div class="vcard-body">
+    <p class="vc-desc">PyPI exposes a <strong>public JSON API</strong> for every package. Open this URL in your browser — it is a machine-readable record served directly by PyPI. Find the <code style="background:rgba(99,102,241,0.15);padding:1px 6px;border-radius:4px">"author"</code> field. It cannot be edited by anyone after publish.</p>
+    <div class="vc-proof-box">
+      <div class="vpb-hdr"><div class="vpb-dots"><div class="vpd vpd-r"></div><div class="vpd vpd-y"></div><div class="vpd vpd-g"></div></div>&nbsp; JSON response (partial)</div>
+      <div class="vpb-body" style="font-size:12px">
+        <div style="color:#475569">{</div>
+        <div style="padding-left:16px"><span style="color:#c4b5fd">"info"</span><span style="color:#94a3b8">: {</span></div>
+        <div style="padding-left:32px"><span style="color:#c4b5fd">"name"</span><span style="color:#94a3b8">: </span><span style="color:#6ee7b7">"ai-bridge-kit"</span><span style="color:#94a3b8">,</span></div>
+        <div style="padding-left:32px"><span style="color:#c4b5fd">"author"</span><span style="color:#94a3b8">: </span><span style="color:#6ee7b7;font-weight:700">"Soham Dahivalkar"</span><span style="color:#94a3b8">,</span> <span style="color:#475569">// &#8592; here</span></div>
+        <div style="padding-left:32px"><span style="color:#c4b5fd">"version"</span><span style="color:#94a3b8">: </span><span style="color:#6ee7b7">"0.1.0"</span><span style="color:#94a3b8">,</span></div>
+        <div style="padding-left:32px"><span style="color:#c4b5fd">"license"</span><span style="color:#94a3b8">: </span><span style="color:#6ee7b7">"MIT"</span></div>
+        <div style="padding-left:16px"><span style="color:#94a3b8">}</span></div>
+        <div style="color:#475569">}</div>
+      </div>
+    </div>
+    <div class="vc-actions">
+      <a class="verify-btn vbtn-primary" href="https://pypi.org/pypi/ai-bridge-kit/json" target="_blank">&#128279; Open JSON API</a>
+      <button class="verify-btn vbtn-check" id="vbtn3" onclick="markVerified(3,'pbs3')">&#10003; I Checked It</button>
+      <span class="vc-confirmed" id="conf3">&#9989; Confirmed by you</span>
+    </div>
+  </div>
+</div>
+<!-- VERIFY CARD 4 — SHA256 Hash -->
+<div class="vcard" id="vc4">
+  <div class="vcard-hdr">
+    <div class="vc-num">4</div>
+    <div class="vc-meta">
+      <div class="vc-tag">Verification 04 &mdash; Cryptographic</div>
+      <div class="vc-title">&#128274; Verify the Cryptographic File Hash</div>
+      <div class="vc-subtitle">SHA256 of ai_bridge_kit-0.1.0-py3-none-any.whl</div>
+    </div>
+    <div class="vc-status" id="vcs4"></div>
+  </div>
+  <div class="vcard-body">
+    <p class="vc-desc">Every file on PyPI has a <strong>SHA256 cryptographic hash</strong>. This hash is computed from the file contents at upload time. If anyone tampered with the package, the hash would change. The hash below is published on PyPI and cannot be faked.</p>
+    <div class="vc-proof-box">
+      <div class="vpb-hdr"><div class="vpb-dots"><div class="vpd vpd-r"></div><div class="vpd vpd-y"></div><div class="vpd vpd-g"></div></div>&nbsp; Official file hashes from PyPI</div>
+      <div class="vpb-body">
+        <div style="color:#475569;margin-bottom:4px">File: ai_bridge_kit-0.1.0-py3-none-any.whl</div>
+        <div><span style="color:#c4b5fd;min-width:60px;display:inline-block">SHA256</span><span class="vp-hash">c247d963630176e5e6d414f3e3c43d14390f40ec3fa08efbb1c7185f9d3b4bf7</span></div>
+        <div style="margin-top:6px"><span style="color:#c4b5fd;min-width:60px;display:inline-block">MD5 &nbsp;&nbsp;</span><span class="vp-hash">6606d6f671cd1257243f83aa4ed44787</span></div>
+        <div style="margin-top:10px;color:#475569;font-size:11px">Cross-check at: pypi.org/project/ai-bridge-kit/0.1.0/#files</div>
+      </div>
+    </div>
+    <div class="vc-actions">
+      <a class="verify-btn vbtn-primary" href="https://pypi.org/project/ai-bridge-kit/0.1.0/#files" target="_blank">&#128274; Check Hashes on PyPI</a>
+      <button class="verify-btn vbtn-check" id="vbtn4" onclick="markVerified(4,'pbs4')">&#10003; Hashes Match</button>
+      <span class="vc-confirmed" id="conf4">&#9989; Confirmed by you</span>
+    </div>
+  </div>
+</div>
+
+<!-- VERIFY CARD 5 — Python Runtime -->
+<div class="vcard" id="vc5">
+  <div class="vcard-hdr">
+    <div class="vc-num">5</div>
+    <div class="vc-meta">
+      <div class="vc-tag">Verification 05 &mdash; Runtime Proof</div>
+      <div class="vc-title">&#129408; Query Authorship from Inside Python</div>
+      <div class="vc-subtitle">importlib.metadata — built into Python 3.10+</div>
+    </div>
+    <div class="vc-status" id="vcs5"></div>
+  </div>
+  <div class="vcard-body">
+    <p class="vc-desc">After installing the package, run this one-liner in Python. It reads authorship directly from the package metadata installed on your machine — <strong>not from a website, not from a screenshot</strong>. The answer comes from the package itself.</p>
+    <div class="vc-proof-box">
+      <div class="vpb-hdr"><div class="vpb-dots"><div class="vpd vpd-r"></div><div class="vpd vpd-y"></div><div class="vpd vpd-g"></div></div>&nbsp; Run in Python (after pip install)</div>
+      <div class="vpb-body">
+        <div><span class="vp-prompt">$</span><span class="vp-cmd">python -c "import importlib.metadata as m; print(m.metadata('ai-bridge-kit')['Author'])"</span></div>
+        <div style="padding-left:16px;margin-top:4px">
+          <span style="color:#6ee7b7;font-weight:700;font-size:14px">Soham Dahivalkar</span>
+          <span style="color:#475569;margin-left:12px">&#8592; output</span>
+        </div>
+        <div style="margin-top:10px"><span class="vp-prompt">$</span><span class="vp-cmd">python -c "import importlib.metadata as m; d=m.metadata('ai-bridge-kit'); print(d['Name'], d['Version'], d['Author'])"</span></div>
+        <div style="padding-left:16px;margin-top:4px">
+          <span style="color:#6ee7b7">ai-bridge-kit &nbsp;0.1.0 &nbsp;</span><span style="color:#6ee7b7;font-weight:700">Soham Dahivalkar</span>
+        </div>
+      </div>
+    </div>
+    <div class="vc-actions">
+      <button class="verify-btn vbtn-ghost" onclick="copyCmd(this,`python -c \"import importlib.metadata as m; print(m.metadata('ai-bridge-kit')['Author'])\"`)">&#128203; Copy Command</button>
+      <button class="verify-btn vbtn-check" id="vbtn5" onclick="markVerified(5,'pbs5')">&#10003; Output Matches</button>
+      <span class="vc-confirmed" id="conf5">&#9989; Confirmed by you</span>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL SCORE -->
+<div class="score-card" id="scoreCard">
+  <div class="score-ring" id="scoreRing">
+    <div class="score-num" id="scoreNum">0</div>
+    <div class="score-denom">/ 5 verified</div>
+  </div>
+  <h2 class="score-title" id="scoreTitle">Start Verifying Above</h2>
+  <p class="score-sub" id="scoreSub">Click each verification step above, check the source yourself, then mark it confirmed. Your progress is tracked here.</p>
+  <div class="score-share" id="scoreShare" style="display:none">
+    <a class="share-btn sb-primary" href="https://www.linkedin.com/in/sohamdahivalkar" target="_blank">&#128101; Connect on LinkedIn</a>
+    <a class="share-btn sb-ghost" href="https://pypi.org/project/ai-bridge-kit/" target="_blank">&#128230; View on PyPI</a>
+    <button class="share-btn sb-ghost" onclick="copyPageLink()">&#128279; Copy This Page Link</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// LIVE PyPI API FETCH
+// ═══════════════════════════════════════════════════
+async function fetchPyPIData() {
+  try {
+    const res = await fetch('https://pypi.org/pypi/ai-bridge-kit/json');
+    const data = await res.json();
+    const info = data.info;
+    const rel  = data.releases['0.1.0'];
+    const whl  = rel.find(f => f.filename.endsWith('.whl')) || rel[0];
+
+    document.getElementById('ld-name').textContent    = info.name;
+    document.getElementById('ld-author').textContent  = info.author;
+    document.getElementById('ld-version').textContent = info.version;
+    document.getElementById('ld-license').textContent = info.license;
+    document.getElementById('ld-date').textContent    = whl.upload_time.replace('T',' ') + ' UTC';
+    document.getElementById('ld-sha').textContent     = whl.digests.sha256;
+    document.getElementById('ld-py').textContent      = info.requires_python;
+    document.getElementById('ld-sum').textContent     = info.summary;
+
+    document.querySelectorAll('.lp-loading').forEach(el => el.classList.remove('lp-loading'));
+    document.getElementById('apiStatus').textContent = '✓ Live from PyPI';
+    document.getElementById('apiStatus').style.background = 'rgba(16,185,129,0.15)';
+    document.getElementById('apiStatus').style.color = '#6ee7b7';
+    document.getElementById('apiStatus').style.borderColor = 'rgba(16,185,129,0.3)';
+
+    // add verified chip next to author
+    const authorEl = document.getElementById('ld-author');
+    const chip = document.createElement('span');
+    chip.className = 'lp-chip';
+    chip.textContent = '✓ Official Author';
+    authorEl.appendChild(chip);
+
+  } catch(e) {
+    document.getElementById('apiStatus').textContent = 'API Error — check pypi.org directly';
+    document.getElementById('apiStatus').style.color = '#fca5a5';
+  }
+}
+fetchPyPIData();
+
+// ═══════════════════════════════════════════════════
+// VERIFICATION TRACKER
+// ═══════════════════════════════════════════════════
+let verified = new Set();
+const total = 5;
+
+const scoreTitles = {
+  0: 'Start Verifying Above',
+  1: 'Good Start — 1 Source Confirmed',
+  2: 'Nice — 2 Sources Verified',
+  3: 'Halfway There',
+  4: 'Almost Done — 4 of 5',
+  5: 'Fully Verified ✓ 5 of 5 Sources'
+};
+const scoreSubs = {
+  0: 'Click each verification step above, check the source yourself, then mark it confirmed. Your progress is tracked here.',
+  1: 'Keep going — each additional source is independent proof.',
+  2: 'Two independent sources both point to the same author.',
+  3: 'Three separate platforms confirm the same author.',
+  4: 'Four verified. One more to go.',
+  5: 'All 5 independent sources confirm: ai-bridge-kit was built and published by Soham Dahivalkar.'
+};
+
+function markVerified(num, stepId) {
+  verified.add(num);
+  const card = document.getElementById('vc' + num);
+  const status = document.getElementById('vcs' + num);
+  const btn = document.getElementById('vbtn' + num);
+  const conf = document.getElementById('conf' + num);
+  const step = document.getElementById(stepId);
+
+  if (card)   card.classList.add('verified');
+  if (status) status.innerHTML = '&#10003;';
+  if (btn)    { btn.classList.add('checked'); btn.textContent = '✓ Verified'; btn.disabled = true; }
+  if (conf)   conf.style.display = 'flex';
+  if (step)   step.classList.add('done');
+
+  updateProgress();
+}
+
+function updateProgress() {
+  const count = verified.size;
+  const pct   = (count / total) * 100;
+
+  document.getElementById('pbFill').style.width  = pct + '%';
+  document.getElementById('pbCount').textContent = count + ' / ' + total + ' verified';
+  document.getElementById('scoreNum').textContent = count;
+  document.getElementById('scoreTitle').textContent = scoreTitles[count];
+  document.getElementById('scoreSub').textContent   = scoreSubs[count];
+
+  if (count === total) {
+    document.getElementById('scoreRing').classList.add('full');
+    document.getElementById('scoreShare').style.display = 'flex';
+    document.getElementById('scoreTitle').style.background = 'linear-gradient(135deg,#6ee7b7,#67e8f9,#a5b4fc)';
+    document.getElementById('scoreTitle').style['-webkit-background-clip'] = 'text';
+    document.getElementById('scoreTitle').style['-webkit-text-fill-color'] = 'transparent';
+    // confetti-like flash
+    document.getElementById('scoreCard').style.boxShadow = '0 0 80px rgba(16,185,129,0.3)';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// COPY HELPERS
+// ═══════════════════════════════════════════════════
+function copyCmd(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    btn.style.background = 'rgba(16,185,129,0.2)';
+    btn.style.color = '#6ee7b7';
+    setTimeout(() => { btn.textContent = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
+  });
+}
+
+function copyPageLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => alert('Page link copied! Share it on LinkedIn, Twitter, or anywhere.'));
+}
+
+// ═══════════════════════════════════════════════════
+// SCROLL REVEAL
+// ═══════════════════════════════════════════════════
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.vcard, .live-panel, .score-card').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(22px)';
+  el.style.transition = 'opacity .55s ease, transform .55s ease';
+  io.observe(el);
+});
+</script>
+</body>
+</html>

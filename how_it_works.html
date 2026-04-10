@@ -1,0 +1,1089 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ai-bridge-kit | How It Works</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070f;--surface:#0f0f1a;--card:#13131e;--card2:#161624;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --a1:#6366f1;--a2:#8b5cf6;--a3:#06b6d4;--a4:#10b981;--a5:#f59e0b;--a6:#ef4444;
+  --text:#f1f5f9;--muted:#94a3b8;--dim:#475569;--dim2:#334155;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* grid bg */
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(99,102,241,0.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(99,102,241,0.035) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none;z-index:0}
+
+/* orbs */
+.orb{position:fixed;border-radius:50%;filter:blur(110px);pointer-events:none;z-index:0;animation:orbFloat 14s ease-in-out infinite alternate}
+.o1{width:700px;height:700px;top:-250px;left:-200px;background:rgba(99,102,241,0.10);animation-delay:0s}
+.o2{width:500px;height:500px;bottom:-150px;right:-150px;background:rgba(139,92,246,0.09);animation-delay:-5s}
+.o3{width:400px;height:400px;top:40%;left:35%;background:rgba(6,182,212,0.07);animation-delay:-9s}
+@keyframes orbFloat{from{transform:translate(0,0) scale(1)}to{transform:translate(25px,35px) scale(1.06)}}
+
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:48px 24px 100px}
+
+/* ─── PAGE HEADER ─── */
+.page-hdr{text-align:center;margin-bottom:64px}
+.pg-kicker{display:inline-flex;align-items:center;gap:8px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);color:#a5b4fc;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:6px 16px;border-radius:100px;margin-bottom:22px}
+.pg-kicker-dot{width:6px;height:6px;border-radius:50%;background:#6366f1;animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.6)}}
+.pg-title{font-size:clamp(38px,5vw,62px);font-weight:900;letter-spacing:-.04em;line-height:1.04;margin-bottom:16px}
+.pg-grad{background:linear-gradient(135deg,#a5b4fc,#c4b5fd 35%,#67e8f9 70%,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pg-sub{font-size:17px;color:var(--muted);max-width:600px;margin:0 auto;line-height:1.7}
+.pg-sub strong{color:var(--text)}
+
+/* ─── STEP LABEL ─── */
+.step-label{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.step-num{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--a1),var(--a2));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 4px 16px rgba(99,102,241,0.4)}
+.step-title{font-size:18px;font-weight:800;color:var(--text)}
+.step-desc{font-size:13.5px;color:var(--muted);line-height:1.6}
+
+/* ─── SECTION WRAPPER ─── */
+.anim-section{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:36px 32px;margin-bottom:24px;position:relative;overflow:hidden;opacity:0;transform:translateY(28px);transition:opacity .6s ease,transform .6s ease}
+.anim-section.visible{opacity:1;transform:translateY(0)}
+.anim-section::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--a1),var(--a2),var(--a3))}
+
+/* ─── SCENE CONTAINER ─── */
+.scene{position:relative;min-height:260px;display:flex;align-items:center;justify-content:center;padding:20px 0}
+
+/* ─── FLOW NODES ─── */
+.node{position:absolute;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;cursor:default}
+.node-box{border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 20px;border:1px solid var(--border2);position:relative;transition:all .3s ease;min-width:110px}
+.node-box:hover{transform:scale(1.04)}
+.node-icon{font-size:28px;line-height:1}
+.node-name{font-size:12px;font-weight:700;color:var(--text);letter-spacing:.02em}
+.node-sub{font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+
+/* box themes */
+.box-app{background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(99,102,241,0.05));border-color:rgba(99,102,241,0.4);box-shadow:0 0 32px rgba(99,102,241,0.12)}
+.box-client{background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(99,102,241,0.08));border-color:rgba(139,92,246,0.45);box-shadow:0 0 36px rgba(139,92,246,0.15)}
+.box-openai{background:linear-gradient(135deg,rgba(16,163,127,0.15),rgba(16,163,127,0.05));border-color:rgba(16,163,127,0.4)}
+.box-anthropic{background:linear-gradient(135deg,rgba(210,126,50,0.15),rgba(210,126,50,0.05));border-color:rgba(210,126,50,0.4)}
+.box-ollama{background:linear-gradient(135deg,rgba(6,182,212,0.15),rgba(6,182,212,0.05));border-color:rgba(6,182,212,0.4)}
+.box-compat{background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(245,158,11,0.05));border-color:rgba(245,158,11,0.4)}
+.box-local{background:linear-gradient(135deg,rgba(239,68,68,0.12),rgba(239,68,68,0.05));border-color:rgba(239,68,68,0.35)}
+.box-retry{background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(245,158,11,0.04));border-color:rgba(245,158,11,0.3)}
+.box-timeout{background:linear-gradient(135deg,rgba(239,68,68,0.12),rgba(239,68,68,0.04));border-color:rgba(239,68,68,0.3)}
+.box-typed{background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(16,185,129,0.04));border-color:rgba(16,185,129,0.3)}
+
+/* ─── SVG ARROWS ─── */
+.flow-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+
+/* ─── PACKET ANIMATION ─── */
+.packet{position:absolute;width:10px;height:10px;border-radius:50%;pointer-events:none;opacity:0;filter:blur(1px)}
+.pkt-req{background:radial-gradient(circle,#a5b4fc,#6366f1);box-shadow:0 0 10px rgba(99,102,241,0.8)}
+.pkt-res{background:radial-gradient(circle,#6ee7b7,#10b981);box-shadow:0 0 10px rgba(16,185,129,0.8)}
+.pkt-err{background:radial-gradient(circle,#fca5a5,#ef4444);box-shadow:0 0 10px rgba(239,68,68,0.8)}
+
+/* ─── STATUS BADGE ─── */
+.status-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
+.s-badge{padding:5px 12px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.06em;opacity:0;transform:scale(.85);transition:opacity .4s,transform .4s}
+.s-badge.show{opacity:1;transform:scale(1)}
+.sb-req{background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3)}
+.sb-ok{background:rgba(16,185,129,0.15);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3)}
+.sb-retry{background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.3)}
+.sb-err{background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3)}
+
+/* ─── LOG CONSOLE ─── */
+.log-console{background:#060610;border:1px solid rgba(99,102,241,0.18);border-radius:14px;overflow:hidden;margin-top:24px}
+.log-hdr{background:rgba(99,102,241,0.08);border-bottom:1px solid rgba(99,102,241,0.15);padding:10px 18px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+.log-dots{display:flex;gap:5px}.log-dot{width:9px;height:9px;border-radius:50%}
+.ld-r{background:#ff5f57}.ld-y{background:#febc2e}.ld-g{background:#28c840}
+.log-body{padding:16px 18px;min-height:90px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.9}
+.log-line{display:flex;gap:10px;opacity:0;transform:translateX(-8px);transition:opacity .35s,transform .35s}
+.log-line.show{opacity:1;transform:translateX(0)}
+.lt{color:var(--dim);flex-shrink:0}.lk{color:#c4b5fd}.lv{color:#6ee7b7}.lo{color:#67e8f9}.le{color:#fca5a5}.lw{color:#fcd34d}.lm{color:var(--muted)}
+
+/* ─── CODE SNIPPET ─── */
+.code-snip{background:#060610;border:1px solid rgba(99,102,241,0.18);border-radius:14px;overflow:hidden;margin-top:16px}
+.cs-hdr{background:rgba(99,102,241,0.08);border-bottom:1px solid rgba(99,102,241,0.14);padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.cs-dots{display:flex;gap:5px}
+.cs-tag{font-size:10px;background:rgba(16,185,129,0.15);color:var(--a4);padding:2px 8px;border-radius:20px;font-weight:700;letter-spacing:.06em}
+.cs-fname{font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+pre.cs{padding:20px 22px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.85;overflow-x:auto}
+.kw{color:#c4b5fd}.fn{color:#67e8f9}.st{color:#6ee7b7}.cm{color:#3f4f66;font-style:italic}.cl{color:#fcd34d}.nm{color:#f1f5f9}.op{color:#64748b}.at{color:#fb923c}
+
+/* ─── PROVIDER SWITCH DEMO ─── */
+.switch-demo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+.sw-panel{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:22px 20px}
+.sw-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--a1);margin-bottom:14px}
+.sw-providers{display:flex;flex-direction:column;gap:8px}
+.sw-prov{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.02);cursor:pointer;transition:all .25s;font-size:13px;font-weight:600;color:var(--muted)}
+.sw-prov:hover{color:var(--text);border-color:rgba(99,102,241,0.35)}
+.sw-prov.active{color:var(--text);border-color:rgba(99,102,241,0.5);background:rgba(99,102,241,0.1);box-shadow:0 0 20px rgba(99,102,241,0.15)}
+.sw-prov-ico{font-size:20px}
+.sw-badge{margin-left:auto;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
+.sw-badge-active{background:rgba(16,185,129,0.2);color:var(--a4);border:1px solid rgba(16,185,129,0.3)}
+.sw-badge-idle{background:rgba(71,85,105,0.3);color:var(--dim);border:1px solid var(--border)}
+.sw-output{background:#060610;border:1px solid rgba(99,102,241,0.15);border-radius:12px;padding:16px;font-family:'JetBrains Mono',monospace;font-size:12px;min-height:80px;transition:all .3s}
+.sw-output .out-label{font-size:10px;color:var(--dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em}
+.sw-output .out-val{color:var(--a4);line-height:1.7}
+
+/* ─── RETRY VISUALISER ─── */
+.retry-track{display:flex;align-items:center;gap:0;margin:24px 0 16px;position:relative}
+.rt-attempt{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;position:relative}
+.rt-circle{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;border:2px solid var(--border2);background:var(--card2);transition:all .4s;color:var(--dim)}
+.rt-circle.active{border-color:var(--a5);background:rgba(245,158,11,0.2);color:#fcd34d;box-shadow:0 0 20px rgba(245,158,11,0.4);animation:rtPulse .6s ease infinite alternate}
+.rt-circle.fail{border-color:var(--a6);background:rgba(239,68,68,0.2);color:#fca5a5}
+.rt-circle.ok{border-color:var(--a4);background:rgba(16,185,129,0.2);color:#6ee7b7;box-shadow:0 0 20px rgba(16,185,129,0.3)}
+.rt-label{font-size:10px;font-weight:600;color:var(--dim);text-align:center}
+.rt-line{height:2px;flex:1;background:var(--border2);position:relative;overflow:hidden;align-self:center;margin-bottom:22px}
+.rt-line-fill{position:absolute;left:0;top:0;height:100%;width:0%;transition:width .5s ease;background:linear-gradient(90deg,var(--a5),var(--a4))}
+.rt-delay{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--a5);font-family:'JetBrains Mono',monospace;white-space:nowrap;opacity:0;transition:opacity .3s}
+.rt-delay.show{opacity:1}
+@keyframes rtPulse{from{box-shadow:0 0 10px rgba(245,158,11,0.3)}to{box-shadow:0 0 30px rgba(245,158,11,0.7)}}
+
+/* ─── MODELS RESPONSE ─── */
+.model-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+.model-card{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:18px;transition:all .3s}
+.model-card.lit{border-color:rgba(99,102,241,0.45);box-shadow:0 0 24px rgba(99,102,241,0.15);transform:translateY(-3px)}
+.mc-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.mc-ico{font-size:22px}
+.mc-name{font-size:13px;font-weight:700;color:var(--text)}
+.mc-model{font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+.mc-resp{font-size:11.5px;color:var(--muted);line-height:1.6;min-height:48px;font-style:italic}
+.mc-meta{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.mc-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;background:rgba(255,255,255,0.05);color:var(--dim);border:1px solid var(--border)}
+
+/* ─── TYPED RESPONSE ─── */
+.typed-card{background:#060610;border:1px solid rgba(16,185,129,0.22);border-radius:16px;overflow:hidden;margin-top:20px}
+.tc-hdr{background:rgba(16,185,129,0.07);border-bottom:1px solid rgba(16,185,129,0.15);padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+.tc-title{font-size:11px;color:var(--a4);font-family:'JetBrains Mono',monospace;font-weight:700}
+.tc-badge{font-size:10px;background:rgba(16,185,129,0.15);color:var(--a4);padding:2px 8px;border-radius:20px;font-weight:700}
+.tc-body{padding:18px 22px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.9}
+.tc-field{display:flex;gap:12px;opacity:0;transform:translateX(-6px);transition:opacity .35s,transform .35s}
+.tc-field.show{opacity:1;transform:translateX(0)}
+.tc-key{color:#c4b5fd;flex-shrink:0;min-width:150px}.tc-val{color:#6ee7b7}.tc-str{color:#6ee7b7}.tc-num{color:#fb923c}.tc-none{color:var(--dim)}
+
+/* ─── ARCHITECTURE OVERVIEW ─── */
+.arch-grid{display:grid;grid-template-columns:1fr;gap:0;position:relative;margin-top:16px}
+.arch-layer{display:flex;align-items:stretch;gap:12px;padding:14px 0;border-left:2px solid var(--border2);margin-left:20px;padding-left:28px;position:relative}
+.arch-layer::before{content:'';position:absolute;left:-7px;top:50%;transform:translateY(-50%);width:12px;height:12px;border-radius:50%;background:var(--a1);border:2px solid var(--bg)}
+.arch-layer:nth-child(2)::before{background:var(--a2)}
+.arch-layer:nth-child(3)::before{background:var(--a3)}
+.arch-layer:nth-child(4)::before{background:var(--a4)}
+.arch-layer:nth-child(5)::before{background:var(--a5)}
+.arch-layer-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);min-width:130px;padding-top:4px}
+.arch-chips{display:flex;gap:8px;flex-wrap:wrap}
+.arch-chip{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--muted);transition:all .25s}
+.arch-chip:hover{color:var(--text);border-color:rgba(99,102,241,0.4);background:rgba(99,102,241,0.07)}
+
+/* ─── MISC ─── */
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:0 0 24px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.run-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:700;border:none;cursor:pointer;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;transition:transform .2s,box-shadow .2s;margin-top:20px;letter-spacing:.02em}
+.run-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(99,102,241,0.45)}
+.run-btn:active{transform:scale(.97)}
+.run-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1e1e30;border:1px solid var(--border2);border-radius:8px;padding:6px 12px;font-size:11px;color:var(--muted);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s;z-index:10}
+.node:hover .tooltip{opacity:1}
+
+@media(max-width:700px){.two-col,.switch-demo,.model-grid{grid-template-columns:1fr}.arch-layer{flex-direction:column}.arch-layer-title{min-width:unset}}
+</style>
+</head>
+<body>
+<div class="o1 orb"></div><div class="o2 orb"></div><div class="o3 orb"></div>
+<div class="wrap">
+<!-- PAGE HEADER -->
+<div class="page-hdr">
+  <div class="pg-kicker"><span class="pg-kicker-dot"></span>Interactive Animation</div>
+  <h1 class="pg-title">How <span class="pg-grad">ai-bridge-kit</span> Works</h1>
+  <p class="pg-sub">A deep-dive visual walkthrough of every layer &mdash; from <strong>your app code</strong> to <strong>any AI provider</strong> and back, with retries, timeouts and typed responses.</p>
+</div>
+
+<!-- ══════════════════ SECTION 1: ARCHITECTURE ══════════════════ -->
+<div class="anim-section" id="s1">
+  <div class="step-label">
+    <div class="step-num">1</div>
+    <div>
+      <div class="step-title">The Big Picture &mdash; Layered Architecture</div>
+      <div class="step-desc">ai-bridge-kit sits between your application and every AI provider as a unified abstraction layer.</div>
+    </div>
+  </div>
+  <div class="arch-grid">
+    <div class="arch-layer">
+      <div class="arch-layer-title">Your Application</div>
+      <div class="arch-chips">
+        <div class="arch-chip">FastAPI / Flask</div>
+        <div class="arch-chip">Django</div>
+        <div class="arch-chip">CLI Script</div>
+        <div class="arch-chip">Jupyter Notebook</div>
+        <div class="arch-chip">Any Python App</div>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">AIClient (entry)</div>
+      <div class="arch-chips">
+        <div class="arch-chip">client.chat()</div>
+        <div class="arch-chip">client.embed()</div>
+        <div class="arch-chip">client.call_function()</div>
+        <div class="arch-chip">async achat()</div>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">Reliability Layer</div>
+      <div class="arch-chips">
+        <div class="arch-chip">Retry Engine (run_with_retry)</div>
+        <div class="arch-chip">Timeout Guard (30s default)</div>
+        <div class="arch-chip">Exponential Backoff + Jitter</div>
+        <div class="arch-chip">should_retry() filter</div>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">Provider Registry</div>
+      <div class="arch-chips">
+        <div class="arch-chip">OpenAIProvider</div>
+        <div class="arch-chip">AnthropicProvider</div>
+        <div class="arch-chip">OllamaProvider</div>
+        <div class="arch-chip">OpenAICompatibleProvider</div>
+        <div class="arch-chip">LocalFunctionProvider</div>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">Typed Response</div>
+      <div class="arch-chips">
+        <div class="arch-chip">AIResponse</div>
+        <div class="arch-chip">EmbeddingResponse</div>
+        <div class="arch-chip">FunctionCallResponse</div>
+        <div class="arch-chip">py.typed marker</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ══════════════════ SECTION 2: REQUEST FLOW ══════════════════ -->
+<div class="anim-section" id="s2">
+  <div class="step-label">
+    <div class="step-num" style="background:linear-gradient(135deg,#06b6d4,#6366f1)">2</div>
+    <div>
+      <div class="step-title">Live Request Flow &mdash; client.chat() in Action</div>
+      <div class="step-desc">Watch how a single call travels through AIClient, hits the Reliability layer, reaches the provider and returns a typed AIResponse.</div>
+    </div>
+  </div>
+
+  <!-- SVG FLOW DIAGRAM -->
+  <div style="position:relative;width:100%;overflow-x:auto">
+  <svg id="flowSvg" viewBox="0 0 900 220" style="width:100%;min-width:600px;display:block" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrowB" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#6366f1"/>
+      </marker>
+      <marker id="arrowG" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#10b981"/>
+      </marker>
+      <marker id="arrowR" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#ef4444"/>
+      </marker>
+      <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <linearGradient id="gradPurple" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient>
+      <linearGradient id="gradCyan" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#6366f1"/></linearGradient>
+      <linearGradient id="gradGreen" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient>
+    </defs>
+
+    <!-- Node backgrounds -->
+    <!-- App -->
+    <rect x="20" y="70" width="110" height="80" rx="14" fill="#0f0f1a" stroke="#6366f1" stroke-width="1.5" opacity="0.9"/>
+    <text x="75" y="104" text-anchor="middle" font-family="Inter" font-size="22" fill="#f1f5f9">&#128187;</text>
+    <text x="75" y="124" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#f1f5f9">Your App</text>
+    <text x="75" y="139" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#475569">client.chat()</text>
+
+    <!-- Arrow 1 -->
+    <line id="arr1" x1="132" y1="110" x2="188" y2="110" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowB)" opacity="0.5"/>
+
+    <!-- AIClient -->
+    <rect x="190" y="60" width="120" height="100" rx="14" fill="#0f0f1a" stroke="#8b5cf6" stroke-width="1.5" opacity="0.9"/>
+    <text x="250" y="96" text-anchor="middle" font-family="Inter" font-size="20" fill="#c4b5fd">&#9889;</text>
+    <text x="250" y="116" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#f1f5f9">AIClient</text>
+    <text x="250" y="131" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#6366f1">normalize()</text>
+    <text x="250" y="146" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#6366f1">get_provider()</text>
+
+    <!-- Arrow 2 -->
+    <line id="arr2" x1="312" y1="110" x2="368" y2="110" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowB)" opacity="0.5"/>
+
+    <!-- Retry/Timeout -->
+    <rect x="370" y="60" width="130" height="100" rx="14" fill="#0f0f1a" stroke="rgba(245,158,11,0.5)" stroke-width="1.5" opacity="0.9"/>
+    <text x="435" y="94" text-anchor="middle" font-family="Inter" font-size="19" fill="#fcd34d">&#128260;</text>
+    <text x="435" y="114" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#f1f5f9">Reliability</text>
+    <text x="435" y="129" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#f59e0b">retry + backoff</text>
+    <text x="435" y="144" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#f59e0b">timeout 30s</text>
+
+    <!-- Arrow 3 -->
+    <line id="arr3" x1="502" y1="110" x2="558" y2="110" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowB)" opacity="0.5"/>
+
+    <!-- Provider -->
+    <rect x="560" y="60" width="120" height="100" rx="14" fill="#0f0f1a" stroke="rgba(6,182,212,0.5)" stroke-width="1.5" opacity="0.9"/>
+    <text x="620" y="96" text-anchor="middle" font-family="Inter" font-size="19" fill="#67e8f9">&#129302;</text>
+    <text x="620" y="116" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#f1f5f9">Provider</text>
+    <text x="620" y="131" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#06b6d4">OpenAI/Anthropic</text>
+    <text x="620" y="146" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#06b6d4">Ollama / Local</text>
+
+    <!-- Arrow 4 -->
+    <line id="arr4" x1="682" y1="110" x2="738" y2="110" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowG)" opacity="0.5"/>
+
+    <!-- AIResponse -->
+    <rect x="740" y="60" width="130" height="100" rx="14" fill="#0f0f1a" stroke="rgba(16,185,129,0.5)" stroke-width="1.5" opacity="0.9"/>
+    <text x="805" y="94" text-anchor="middle" font-family="Inter" font-size="19" fill="#6ee7b7">&#128203;</text>
+    <text x="805" y="114" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#f1f5f9">AIResponse</text>
+    <text x="805" y="129" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#10b981">.content</text>
+    <text x="805" y="144" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#10b981">.provider .model</text>
+
+    <!-- Moving packet (JS will animate this) -->
+    <circle id="flowPacket" cx="75" cy="110" r="6" fill="url(#gradPurple)" opacity="0" filter="url(#glow)"/>
+
+    <!-- Step labels below -->
+    <text x="75" y="170" text-anchor="middle" font-family="Inter" font-size="9" fill="#334155">STEP 1</text>
+    <text x="250" y="175" text-anchor="middle" font-family="Inter" font-size="9" fill="#334155">STEP 2</text>
+    <text x="435" y="175" text-anchor="middle" font-family="Inter" font-size="9" fill="#334155">STEP 3</text>
+    <text x="620" y="175" text-anchor="middle" font-family="Inter" font-size="9" fill="#334155">STEP 4</text>
+    <text x="805" y="175" text-anchor="middle" font-family="Inter" font-size="9" fill="#334155">STEP 5</text>
+  </svg>
+  </div>
+
+  <!-- Status badges -->
+  <div class="status-row" id="statusRow">
+    <span class="s-badge sb-req" id="sb1">&#9654; ChatRequest created</span>
+    <span class="s-badge sb-req" id="sb2">&#9889; Provider resolved</span>
+    <span class="s-badge sb-retry" id="sb3">&#128260; Retry wrapper active</span>
+    <span class="s-badge sb-req" id="sb4">&#8594; Calling provider API</span>
+    <span class="s-badge sb-ok" id="sb5">&#10003; AIResponse returned</span>
+  </div>
+
+  <!-- Log console -->
+  <div class="log-console">
+    <div class="log-hdr"><div class="log-dots"><div class="log-dot ld-r"></div><div class="log-dot ld-y"></div><div class="log-dot ld-g"></div></div>&nbsp; ai_bridge_kit &mdash; runtime log</div>
+    <div class="log-body" id="logBody">
+      <div class="log-line" id="l1"><span class="lt">[00:00.000]</span><span class="lk">INFO &nbsp;</span><span class="lm">AIClient.chat() called &mdash; normalizing messages</span></div>
+      <div class="log-line" id="l2"><span class="lt">[00:00.002]</span><span class="lk">INFO &nbsp;</span><span class="lm">ChatRequest built: 1 message, role=user</span></div>
+      <div class="log-line" id="l3"><span class="lt">[00:00.003]</span><span class="lk">INFO &nbsp;</span><span class="lo">get_provider() &rarr; resolved &quot;openai&quot; (default)</span></div>
+      <div class="log-line" id="l4"><span class="lt">[00:00.004]</span><span class="lw">INFO &nbsp;</span><span class="lm">run_with_retry() &mdash; max_attempts=3, backoff=0.4s, jitter=True</span></div>
+      <div class="log-line" id="l5"><span class="lt">[00:00.005]</span><span class="lk">INFO &nbsp;</span><span class="lm">Attempt 1/3 &mdash; calling OpenAIProvider.chat()</span></div>
+      <div class="log-line" id="l6"><span class="lt">[00:00.831]</span><span class="lv">OK &nbsp;&nbsp;&nbsp;</span><span class="lm">AIResponse received &mdash; provider=openai, tokens_in=12, tokens_out=38</span></div>
+    </div>
+  </div>
+
+  <button class="run-btn" id="btnFlow" onclick="runFlowAnim()">&#9654; Run Animation</button>
+</div>
+<!-- ══════════════════ SECTION 3: PROVIDER SWITCH ══════════════════ -->
+<div class="anim-section" id="s3">
+  <div class="step-label">
+    <div class="step-num" style="background:linear-gradient(135deg,#10b981,#06b6d4)">3</div>
+    <div>
+      <div class="step-title">Zero-Rewrite Provider Switching</div>
+      <div class="step-desc">Click any provider below. Your business logic stays identical &mdash; only the registered default changes. This is the core value proposition.</div>
+    </div>
+  </div>
+  <div class="switch-demo">
+    <div class="sw-panel">
+      <div class="sw-title">Select Active Provider</div>
+      <div class="sw-providers" id="swProviders">
+        <div class="sw-prov active" onclick="switchProvider('openai',this)">
+          <span class="sw-prov-ico">&#129302;</span>
+          <span>OpenAI</span>
+          <span class="sw-badge sw-badge-active" id="spb-openai">DEFAULT</span>
+        </div>
+        <div class="sw-prov" onclick="switchProvider('anthropic',this)">
+          <span class="sw-prov-ico">&#129504;</span>
+          <span>Anthropic</span>
+          <span class="sw-badge sw-badge-idle" id="spb-anthropic">idle</span>
+        </div>
+        <div class="sw-prov" onclick="switchProvider('ollama',this)">
+          <span class="sw-prov-ico">&#127968;</span>
+          <span>Ollama (local)</span>
+          <span class="sw-badge sw-badge-idle" id="spb-ollama">idle</span>
+        </div>
+        <div class="sw-prov" onclick="switchProvider('openrouter',this)">
+          <span class="sw-prov-ico">&#128279;</span>
+          <span>OpenRouter</span>
+          <span class="sw-badge sw-badge-idle" id="spb-openrouter">idle</span>
+        </div>
+        <div class="sw-prov" onclick="switchProvider('local',this)">
+          <span class="sw-prov-ico">&#128421;</span>
+          <span>Local Function</span>
+          <span class="sw-badge sw-badge-idle" id="spb-local">idle</span>
+        </div>
+      </div>
+    </div>
+    <div class="sw-panel">
+      <div class="sw-title">Code stays the same</div>
+      <div class="code-snip" style="margin-top:0">
+        <div class="cs-hdr">
+          <div class="cs-dots"><div class="log-dot ld-r"></div><div class="log-dot ld-y"></div><div class="log-dot ld-g"></div></div>
+          <span class="cs-fname">app.py</span>
+          <span class="cs-tag">unchanged</span>
+        </div>
+        <pre class="cs"><span class="cm"># This code NEVER changes regardless of provider</span>
+<span class="nm">response</span> <span class="op">=</span> <span class="nm">client</span>.<span class="fn">chat</span>(<span class="st">"Summarise agentic AI"</span>)
+<span class="fn">print</span>(<span class="nm">response</span>.<span class="at">content</span>)</pre>
+      </div>
+      <div class="sw-output" id="swOutput">
+        <div class="out-label">&#9654; Response from <span id="swProvName">openai</span></div>
+        <div class="out-val" id="swOutVal">Agentic AI refers to autonomous systems that plan and execute multi-step tasks using LLMs as their reasoning engine...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ SECTION 4: RETRY ENGINE ══════════════════ -->
+<div class="anim-section" id="s4">
+  <div class="step-label">
+    <div class="step-num" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">4</div>
+    <div>
+      <div class="step-title">Retry Engine &mdash; Exponential Backoff + Jitter</div>
+      <div class="step-desc">When a provider call fails, ai-bridge-kit automatically retries with exponential backoff and optional jitter. Validation errors are never retried.</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="code-snip">
+        <div class="cs-hdr">
+          <div class="cs-dots"><div class="log-dot ld-r"></div><div class="log-dot ld-y"></div><div class="log-dot ld-g"></div></div>
+          <span class="cs-fname">retry.py</span>
+          <span class="cs-tag">core logic</span>
+        </div>
+        <pre class="cs"><span class="cm"># AIBridgeSettings defaults</span>
+<span class="nm">retries</span>          <span class="op">=</span> <span class="at">2</span>
+<span class="nm">backoff_seconds</span>  <span class="op">=</span> <span class="at">0.4</span>
+<span class="nm">max_backoff</span>      <span class="op">=</span> <span class="at">4.0</span>
+<span class="nm">use_jitter</span>       <span class="op">=</span> <span class="kw">True</span>
+
+<span class="cm"># Delay formula per attempt:</span>
+<span class="nm">delay</span> <span class="op">=</span> <span class="fn">min</span>(<span class="nm">max_backoff</span>, <span class="nm">backoff</span> <span class="op">*</span> (<span class="at">2</span> <span class="op">**</span> (attempt<span class="op">-</span><span class="at">1</span>)))
+<span class="kw">if</span> <span class="nm">jitter</span>: delay <span class="op">*=</span> <span class="fn">uniform</span>(<span class="at">0.75</span>, <span class="at">1.25</span>)
+
+<span class="cm"># Never retry these:</span>
+<span class="nm">should_retry</span> <span class="op">=</span> <span class="kw">not</span> <span class="fn">isinstance</span>(exc, (
+  <span class="cl">ValidationError</span>,
+  <span class="cl">ProviderNotFoundError</span>,
+  <span class="cl">CapabilityNotSupportedError</span>
+))</pre>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Attempt timeline (click to simulate a flaky provider):</div>
+      <div class="retry-track" id="retryTrack">
+        <div class="rt-attempt">
+          <div class="rt-circle" id="rt0">1</div>
+          <div class="rt-label">Attempt 1</div>
+        </div>
+        <div class="rt-line"><div class="rt-line-fill" id="rl0"></div><span class="rt-delay" id="rd0">0.4s + jitter</span></div>
+        <div class="rt-attempt">
+          <div class="rt-circle" id="rt1">2</div>
+          <div class="rt-label">Attempt 2</div>
+        </div>
+        <div class="rt-line"><div class="rt-line-fill" id="rl1"></div><span class="rt-delay" id="rd1">0.8s + jitter</span></div>
+        <div class="rt-attempt">
+          <div class="rt-circle" id="rt2">3</div>
+          <div class="rt-label">Attempt 3</div>
+        </div>
+        <div class="rt-line"><div class="rt-line-fill" id="rl2"></div><span class="rt-delay" id="rd2">&#10003; success</span></div>
+        <div class="rt-attempt">
+          <div class="rt-circle" id="rt3" style="font-size:16px">&#10003;</div>
+          <div class="rt-label">Response</div>
+        </div>
+      </div>
+      <div class="log-console">
+        <div class="log-hdr"><div class="log-dots"><div class="log-dot ld-r"></div><div class="log-dot ld-y"></div><div class="log-dot ld-g"></div></div>&nbsp;retry engine trace</div>
+        <div class="log-body" id="retryLog" style="min-height:70px">
+          <div class="log-line" id="rl1a"><span class="lt">[T+0.000s]</span><span class="lw">RETRY</span><span class="lm">Attempt 1 &mdash; calling provider...</span></div>
+          <div class="log-line" id="rl2a"><span class="lt">[T+0.001s]</span><span class="le">FAIL &nbsp;</span><span class="lm">ProviderExecutionError: Connection reset</span></div>
+          <div class="log-line" id="rl3a"><span class="lt">[T+0.001s]</span><span class="lw">RETRY</span><span class="lm">Sleeping 0.43s (jitter applied) &mdash; attempt 2/3</span></div>
+          <div class="log-line" id="rl4a"><span class="lt">[T+0.431s]</span><span class="lw">RETRY</span><span class="lm">Attempt 2 &mdash; calling provider...</span></div>
+          <div class="log-line" id="rl5a"><span class="lt">[T+0.432s]</span><span class="le">FAIL &nbsp;</span><span class="lm">ProviderExecutionError: Rate limit hit</span></div>
+          <div class="log-line" id="rl6a"><span class="lt">[T+0.432s]</span><span class="lw">RETRY</span><span class="lm">Sleeping 0.91s (jitter applied) &mdash; attempt 3/3</span></div>
+          <div class="log-line" id="rl7a"><span class="lt">[T+1.341s]</span><span class="lv">OK &nbsp;&nbsp;&nbsp;</span><span class="lm">Attempt 3 succeeded &mdash; AIResponse returned</span></div>
+        </div>
+      </div>
+      <button class="run-btn" id="btnRetry" onclick="runRetryAnim()">&#9654; Simulate Flaky Provider</button>
+    </div>
+  </div>
+</div>
+<!-- ══════════════════ SECTION 5: TYPED RESPONSE ══════════════════ -->
+<div class="anim-section" id="s5">
+  <div class="step-label">
+    <div class="step-num" style="background:linear-gradient(135deg,#10b981,#6366f1)">5</div>
+    <div>
+      <div class="step-title">Typed Responses &mdash; AIResponse, EmbeddingResponse, FunctionCallResponse</div>
+      <div class="step-desc">Every operation returns a fully typed, frozen dataclass. No dict parsing. Full IDE autocomplete. py.typed marker included.</div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="code-snip">
+        <div class="cs-hdr">
+          <div class="cs-dots"><div class="log-dot ld-r"></div><div class="log-dot ld-y"></div><div class="log-dot ld-g"></div></div>
+          <span class="cs-fname">models.py (dataclasses)</span>
+          <span class="cs-tag">frozen=True</span>
+        </div>
+        <pre class="cs"><span class="at">@dataclass</span>(<span class="nm">frozen</span><span class="op">=</span><span class="kw">True</span>)
+<span class="kw">class</span> <span class="cl">AIResponse</span>:
+    <span class="nm">content</span>: <span class="cl">str</span>
+    <span class="nm">provider</span>: <span class="cl">str</span>
+    <span class="nm">model</span>: <span class="cl">str</span> <span class="op">|</span> <span class="kw">None</span> <span class="op">=</span> <span class="kw">None</span>
+    <span class="nm">tokens_input</span>: <span class="cl">int</span> <span class="op">|</span> <span class="kw">None</span> <span class="op">=</span> <span class="kw">None</span>
+    <span class="nm">tokens_output</span>: <span class="cl">int</span> <span class="op">|</span> <span class="kw">None</span> <span class="op">=</span> <span class="kw">None</span>
+    <span class="nm">created_at</span>: <span class="cl">datetime</span> <span class="op">=</span> ...
+    <span class="nm">raw</span>: <span class="cl">Any</span> <span class="op">=</span> <span class="kw">None</span>
+
+<span class="at">@dataclass</span>(<span class="nm">frozen</span><span class="op">=</span><span class="kw">True</span>)
+<span class="kw">class</span> <span class="cl">EmbeddingResponse</span>:
+    <span class="nm">vectors</span>: <span class="cl">list</span>[<span class="cl">list</span>[<span class="cl">float</span>]]
+    <span class="nm">provider</span>: <span class="cl">str</span>
+    <span class="nm">model</span>: <span class="cl">str</span> <span class="op">|</span> <span class="kw">None</span> <span class="op">=</span> <span class="kw">None</span></pre>
+      </div>
+    </div>
+    <div>
+      <div class="typed-card">
+        <div class="tc-hdr">
+          <span class="tc-title">AIResponse instance</span>
+          <span class="tc-badge">LIVE OBJECT</span>
+        </div>
+        <div class="tc-body" id="tcBody">
+          <div class="tc-field" id="tf1"><span class="tc-key">response.content</span><span class="op"> = </span><span class="tc-str">"Agentic AI systems plan and execute multi-step tasks..."</span></div>
+          <div class="tc-field" id="tf2"><span class="tc-key">response.provider</span><span class="op"> = </span><span class="tc-str">"openai"</span></div>
+          <div class="tc-field" id="tf3"><span class="tc-key">response.model</span><span class="op"> = </span><span class="tc-str">"gpt-4o-mini"</span></div>
+          <div class="tc-field" id="tf4"><span class="tc-key">response.tokens_input</span><span class="op"> = </span><span class="tc-num">12</span></div>
+          <div class="tc-field" id="tf5"><span class="tc-key">response.tokens_output</span><span class="op"> = </span><span class="tc-num">38</span></div>
+          <div class="tc-field" id="tf6"><span class="tc-key">response.created_at</span><span class="op"> = </span><span class="tc-str" id="tfDate">datetime(2025,...)</span></div>
+          <div class="tc-field" id="tf7"><span class="tc-key">response.raw</span><span class="op"> = </span><span class="tc-none">&lt;provider raw response&gt;</span></div>
+        </div>
+      </div>
+      <button class="run-btn" id="btnTyped" onclick="runTypedAnim()">&#9654; Reveal Fields</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ SECTION 6: ALL 3 OPERATION MODES ══════════════════ -->
+<div class="anim-section" id="s6">
+  <div class="step-label">
+    <div class="step-num" style="background:linear-gradient(135deg,#8b5cf6,#06b6d4)">6</div>
+    <div>
+      <div class="step-title">3 Operation Modes &mdash; Chat, Embed, Function Call</div>
+      <div class="step-desc">One AIClient handles all three operation types. Each provider declares which capabilities it supports via ProviderCapabilities.</div>
+    </div>
+  </div>
+  <div class="model-grid">
+    <div class="model-card" id="mc1">
+      <div class="mc-top">
+        <span class="mc-ico">&#128172;</span>
+        <div><div class="mc-name">client.chat()</div><div class="mc-model">ChatRequest &rarr; AIResponse</div></div>
+      </div>
+      <div class="mc-resp" id="mc1r">Pass a string or list of ChatMessage objects. Supports model, temperature, max_output_tokens, metadata...</div>
+      <div class="mc-meta">
+        <span class="mc-tag">async achat()</span><span class="mc-tag">role: user/system/assistant</span><span class="mc-tag">typed</span>
+      </div>
+    </div>
+    <div class="model-card" id="mc2">
+      <div class="mc-top">
+        <span class="mc-ico">&#128200;</span>
+        <div><div class="mc-name">client.embed()</div><div class="mc-model">EmbedRequest &rarr; EmbeddingResponse</div></div>
+      </div>
+      <div class="mc-resp" id="mc2r">Pass a string or list of strings. Returns vectors: list[list[float]] &mdash; one vector per input text...</div>
+      <div class="mc-meta">
+        <span class="mc-tag">async aembed()</span><span class="mc-tag">1536 dims (OpenAI)</span><span class="mc-tag">SHA256 local</span>
+      </div>
+    </div>
+    <div class="model-card" id="mc3">
+      <div class="mc-top">
+        <span class="mc-ico">&#128736;</span>
+        <div><div class="mc-name">client.call_function()</div><div class="mc-model">FunctionCallRequest &rarr; FunctionCallResponse</div></div>
+      </div>
+      <div class="mc-resp" id="mc3r">Call any registered local AI function by name. Pass arguments as a dict. Returns result + provider metadata...</div>
+      <div class="mc-meta">
+        <span class="mc-tag">async acall_function()</span><span class="mc-tag">register_provider()</span><span class="mc-tag">custom</span>
+      </div>
+    </div>
+  </div>
+  <button class="run-btn" id="btnModes" onclick="runModesAnim()">&#9654; Animate All Modes</button>
+</div>
+<!-- ══════════════════ SECTION 7: FULL CODE WALKTHROUGH ══════════════════ -->
+<div class="anim-section" id="s7">
+  <div class="step-label">
+    <div class="step-num" style="background:linear-gradient(135deg,#06b6d4,#10b981)">7</div>
+    <div>
+      <div class="step-title">End-to-End Code Walkthrough</div>
+      <div class="step-desc">From install to response in under 10 lines. Every line annotated with what happens internally.</div>
+    </div>
+  </div>
+  <div class="code-snip">
+    <div class="cs-hdr">
+      <div class="cs-dots"><div class="log-dot ld-r"></div><div class="log-dot ld-y"></div><div class="log-dot ld-g"></div></div>
+      <span class="cs-fname">full_example.py</span>
+      <span class="cs-tag">annotated</span>
+    </div>
+    <pre class="cs"><span class="cm"># Step 1 ── Install</span>
+<span class="cm"># pip install "ai-bridge-kit[openai]"</span>
+
+<span class="cm"># Step 2 ── Import</span>
+<span class="kw">from</span> <span class="nm">ai_bridge_kit</span> <span class="kw">import</span> <span class="cl">AIClient</span>
+<span class="kw">from</span> <span class="nm">ai_bridge_kit.providers</span> <span class="kw">import</span> <span class="cl">OpenAIProvider</span>, <span class="cl">AnthropicProvider</span>, <span class="cl">OllamaProvider</span>
+
+<span class="cm"># Step 3 ── Create client (auto-registers LocalFunctionProvider as default)</span>
+<span class="nm">client</span> <span class="op">=</span> <span class="cl">AIClient</span>()  <span class="cm"># settings: timeout=30s, retries=2, jitter=True</span>
+
+<span class="cm"># Step 4 ── Register a cloud provider and set as default</span>
+<span class="nm">client</span>.<span class="fn">register_provider</span>(
+    <span class="cl">OpenAIProvider</span>(<span class="nm">api_key</span><span class="op">=</span><span class="st">"sk-..."</span>),
+    <span class="nm">set_default</span><span class="op">=</span><span class="kw">True</span>   <span class="cm"># stored in settings.default_provider</span>
+)
+
+<span class="cm"># Step 5 ── Chat  (sync or async)</span>
+<span class="nm">resp</span> <span class="op">=</span> <span class="nm">client</span>.<span class="fn">chat</span>(<span class="st">"Explain RAG in one sentence."</span>, <span class="nm">model</span><span class="op">=</span><span class="st">"gpt-4o-mini"</span>)
+<span class="cm"># Internally: normalize → ChatRequest → run_with_retry → timeout guard → provider.chat()</span>
+<span class="fn">print</span>(<span class="nm">resp</span>.<span class="at">content</span>)          <span class="cm"># typed AIResponse.content  ✓</span>
+<span class="fn">print</span>(<span class="nm">resp</span>.<span class="at">tokens_output</span>)    <span class="cm"># tokens_output: int | None ✓</span>
+
+<span class="cm"># Step 6 ── Embeddings</span>
+<span class="nm">emb</span> <span class="op">=</span> <span class="nm">client</span>.<span class="fn">embed</span>([<span class="st">"hello"</span>, <span class="st">"world"</span>])
+<span class="fn">print</span>(<span class="fn">len</span>(<span class="nm">emb</span>.<span class="at">vectors</span>[<span class="at">0</span>]))   <span class="cm"># 1536 dims (OpenAI) ✓</span>
+
+<span class="cm"># Step 7 ── Switch to Ollama (local) — zero code change above</span>
+<span class="nm">client</span>.<span class="fn">register_provider</span>(
+    <span class="cl">OllamaProvider</span>(<span class="nm">base_url</span><span class="op">=</span><span class="st">"http://localhost:11434"</span>, <span class="nm">default_chat_model</span><span class="op">=</span><span class="st">"llama3.2"</span>),
+    <span class="nm">set_default</span><span class="op">=</span><span class="kw">True</span>
+)
+<span class="nm">resp2</span> <span class="op">=</span> <span class="nm">client</span>.<span class="fn">chat</span>(<span class="st">"Explain RAG in one sentence."</span>)  <span class="cm"># same call ✓</span>
+
+<span class="cm"># Step 8 ── CLI (no Python needed)</span>
+<span class="cm"># ai-bridge chat --message "Explain RAG"</span>
+<span class="cm"># ai-bridge embed --text "hello" --text "world"</span>
+<span class="cm"># ai-bridge providers</span></pre>
+  </div>
+</div>
+
+<!-- ══════════════════ SECTION 8: ERRORS ══════════════════ -->
+<div class="anim-section" id="s8">
+  <div class="step-label">
+    <div class="step-num" style="background:linear-gradient(135deg,#ef4444,#f59e0b)">8</div>
+    <div>
+      <div class="step-title">Error Hierarchy &mdash; Predictable, Typed Exceptions</div>
+      <div class="step-desc">Every failure mode has its own exception class. You always know exactly what went wrong — and whether it should be retried.</div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="code-snip">
+      <div class="cs-hdr">
+        <div class="cs-dots"><div class="log-dot ld-r"></div><div class="log-dot ld-y"></div><div class="log-dot ld-g"></div></div>
+        <span class="cs-fname">errors.py</span>
+        <span class="cs-tag">hierarchy</span>
+      </div>
+      <pre class="cs"><span class="kw">class</span> <span class="cl">AIBridgeError</span>(<span class="cl">Exception</span>):
+    <span class="cm">"""Base — catch everything"""</span>
+
+<span class="kw">class</span> <span class="cl">ProviderNotFoundError</span>(<span class="cl">AIBridgeError</span>):
+    <span class="cm">"""Provider not registered — never retry"""</span>
+
+<span class="kw">class</span> <span class="cl">ProviderExecutionError</span>(<span class="cl">AIBridgeError</span>):
+    <span class="cm">"""API call failed — WILL retry"""</span>
+
+<span class="kw">class</span> <span class="cl">ValidationError</span>(<span class="cl">AIBridgeError</span>):
+    <span class="cm">"""Bad input — never retry"""</span>
+
+<span class="kw">class</span> <span class="cl">CapabilityNotSupportedError</span>(<span class="cl">AIBridgeError</span>):
+    <span class="cm">"""Provider lacks capability — never retry"""</span></pre>
+    </div>
+    <div class="code-snip">
+      <div class="cs-hdr">
+        <div class="cs-dots"><div class="log-dot ld-r"></div><div class="log-dot ld-y"></div><div class="log-dot ld-g"></div></div>
+        <span class="cs-fname">handling errors</span>
+        <span class="cs-tag">best practice</span>
+      </div>
+      <pre class="cs"><span class="kw">from</span> <span class="nm">ai_bridge_kit.errors</span> <span class="kw">import</span> (
+    <span class="cl">AIBridgeError</span>,
+    <span class="cl">ProviderExecutionError</span>,
+    <span class="cl">ValidationError</span>,
+)
+
+<span class="kw">try</span>:
+    <span class="nm">resp</span> <span class="op">=</span> <span class="nm">client</span>.<span class="fn">chat</span>(<span class="st">"Hello"</span>)
+<span class="kw">except</span> <span class="cl">ValidationError</span> <span class="kw">as</span> <span class="nm">e</span>:
+    <span class="fn">print</span>(<span class="st">"Bad input:"</span>, <span class="nm">e</span>)      <span class="cm"># not retried</span>
+<span class="kw">except</span> <span class="cl">ProviderExecutionError</span> <span class="kw">as</span> <span class="nm">e</span>:
+    <span class="fn">print</span>(<span class="st">"API failed:"</span>, <span class="nm">e</span>)     <span class="cm"># retried 2x already</span>
+<span class="kw">except</span> <span class="cl">AIBridgeError</span> <span class="kw">as</span> <span class="nm">e</span>:
+    <span class="fn">print</span>(<span class="st">"Bridge error:"</span>, <span class="nm">e</span>)   <span class="cm"># catch-all</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ FOOTER ══════════════════ -->
+<style>
+  .foot{background:linear-gradient(135deg,#0f0f1c,#0b0b18);border:1px solid var(--border);border-radius:22px;padding:48px 36px;text-align:center;position:relative;overflow:hidden;margin-top:8px}
+  .foot::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(99,102,241,.13) 0%,transparent 60%);pointer-events:none}
+  .foot::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--a1),var(--a2),var(--a3),var(--a4))}
+  .foot-title{font-size:26px;font-weight:900;letter-spacing:-.03em;margin-bottom:8px;position:relative;z-index:1}
+  .foot-sub{font-size:14px;color:var(--muted);margin-bottom:24px;position:relative;z-index:1;line-height:1.7;max-width:520px;margin-left:auto;margin-right:auto}
+  .foot-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+  .foot-btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;transition:transform .2s,box-shadow .2s}
+  .foot-btn:hover{transform:translateY(-2px)}
+  .fb-primary{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;box-shadow:0 6px 24px rgba(99,102,241,.4)}
+  .fb-primary:hover{box-shadow:0 10px 32px rgba(99,102,241,.55)}
+  .fb-ghost{background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--border)}
+  .fb-ghost:hover{background:rgba(255,255,255,.09)}
+  .foot-tags{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;margin-top:22px}
+  .ftag{padding:5px 13px;border-radius:100px;font-size:11px;font-weight:600;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--dim)}
+  .foot-copy{margin-top:22px;font-size:11.5px;color:var(--dim2);position:relative;z-index:1}
+  .foot-copy a{color:var(--a1);text-decoration:none}
+</style>
+
+<div class="foot">
+  <div class="foot-title">Built by <span class="pg-grad">Soham Dahivalkar</span></div>
+  <div class="foot-sub">ai-bridge-kit &mdash; the universal Python connector for AI. Open-source, MIT licensed, production-ready.</div>
+  <div class="foot-btns">
+    <a class="foot-btn fb-ghost" href="https://www.linkedin.com/in/sohamdahivalkar">&#128101; Connect on LinkedIn</a>
+  </div>
+  <div class="foot-tags">
+    <span class="ftag">#Python</span><span class="ftag">#OpenSource</span><span class="ftag">#LLM</span>
+    <span class="ftag">#AI</span><span class="ftag">#SDK</span><span class="ftag">#MLOps</span>
+    <span class="ftag">#AIBridgeKit</span><span class="ftag">#BuildInPublic</span>
+  </div>
+  <div class="foot-copy">
+    github.com/<a href="https://github.com/sohamdahivalkar/ai-bridge-kit">sohamdahivalkar/ai-bridge-kit</a>
+    &nbsp;&bull;&nbsp; MIT License &nbsp;&bull;&nbsp; Python 3.10+
+  </div>
+</div>
+
+</div><!-- end .wrap -->
+<script>
+// ═══════════════════════════════════════════════════════
+//  INTERSECTION OBSERVER — reveal sections on scroll
+// ═══════════════════════════════════════════════════════
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.anim-section').forEach(s => observer.observe(s));
+
+// ═══════════════════════════════════════════════════════
+//  SECTION 2 — SVG packet flow animation
+// ═══════════════════════════════════════════════════════
+const flowStops = [75, 250, 435, 620, 805];
+const arrows    = ['arr1','arr2','arr3','arr4'];
+const sbIds     = ['sb1','sb2','sb3','sb4','sb5'];
+const logIds    = ['l1','l2','l3','l4','l5','l6'];
+
+function resetFlow() {
+  const pkt = document.getElementById('flowPacket');
+  if (!pkt) return;
+  pkt.setAttribute('cx', flowStops[0]);
+  pkt.setAttribute('opacity', '0');
+  arrows.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('opacity','0.5');
+  });
+  sbIds.forEach(id => document.getElementById(id)?.classList.remove('show'));
+  logIds.forEach(id => document.getElementById(id)?.classList.remove('show'));
+}
+
+function runFlowAnim() {
+  const btn = document.getElementById('btnFlow');
+  if (btn) btn.disabled = true;
+  resetFlow();
+  const pkt = document.getElementById('flowPacket');
+  if (!pkt) return;
+
+  let step = 0;
+  const colors = ['url(#gradPurple)','url(#gradPurple)','url(#gradCyan)','url(#gradCyan)','url(#gradGreen)'];
+
+  function animStep() {
+    if (step >= flowStops.length) {
+      if (btn) btn.disabled = false;
+      return;
+    }
+    // show log line
+    const ll = document.getElementById(logIds[step]);
+    if (ll) setTimeout(() => ll.classList.add('show'), 80);
+    // show badge
+    const sb = document.getElementById(sbIds[step]);
+    if (sb) setTimeout(() => sb.classList.add('show'), 120);
+    // light up arrow
+    if (step < arrows.length) {
+      const arr = document.getElementById(arrows[step]);
+      if (arr) arr.setAttribute('opacity','1');
+    }
+    // animate packet
+    pkt.setAttribute('fill', colors[step]);
+    pkt.setAttribute('opacity','1');
+    const targetX = flowStops[step];
+    const startX  = parseFloat(pkt.getAttribute('cx'));
+    const dist    = targetX - startX;
+    const dur     = 420;
+    const start   = performance.now();
+
+    function tick(now) {
+      const t  = Math.min((now - start) / dur, 1);
+      const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+      pkt.setAttribute('cx', startX + dist * ease);
+      if (t < 1) { requestAnimationFrame(tick); }
+      else {
+        if (step === flowStops.length - 1) {
+          // fade out at end
+          setTimeout(() => { pkt.setAttribute('opacity','0'); }, 600);
+        }
+        step++;
+        setTimeout(animStep, step === flowStops.length ? 0 : 480);
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  setTimeout(() => { pkt.setAttribute('opacity','1'); animStep(); }, 200);
+}
+
+// auto-run flow on page load after a short delay
+window.addEventListener('load', () => setTimeout(runFlowAnim, 1200));
+
+// ═══════════════════════════════════════════════════════
+//  SECTION 3 — Provider switch demo
+// ═══════════════════════════════════════════════════════
+const providerData = {
+  openai: {
+    name: 'openai',
+    resp: 'Agentic AI refers to autonomous LLM systems that plan, reason, and execute multi-step tasks using tools and memory...'
+  },
+  anthropic: {
+    name: 'anthropic',
+    resp: 'Agentic AI systems use Claude as a reasoning engine to decompose goals into sequential actions, maintaining context across steps...'
+  },
+  ollama: {
+    name: 'ollama (llama3.2)',
+    resp: '[Local · no API cost] Agentic AI = LLMs that can take actions, call tools and loop until a goal is reached...'
+  },
+  openrouter: {
+    name: 'openrouter',
+    resp: 'Via OpenRouter: Agentic AI pipelines route prompts through the best available model for each subtask automatically...'
+  },
+  local: {
+    name: 'local-function',
+    resp: '[local-ai] Summarise agentic AI in one sentence. — processed by your registered LocalFunctionProvider...'
+  }
+};
+
+function switchProvider(key, el) {
+  document.querySelectorAll('.sw-prov').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  Object.keys(providerData).forEach(k => {
+    const b = document.getElementById('spb-' + k);
+    if (!b) return;
+    if (k === key) {
+      b.textContent = 'DEFAULT';
+      b.className = 'sw-badge sw-badge-active';
+    } else {
+      b.textContent = 'idle';
+      b.className = 'sw-badge sw-badge-idle';
+    }
+  });
+  const d = providerData[key];
+  const nameEl = document.getElementById('swProvName');
+  const valEl  = document.getElementById('swOutVal');
+  const outEl  = document.getElementById('swOutput');
+  if (nameEl) nameEl.textContent = d.name;
+  if (outEl)  outEl.style.opacity = '0.4';
+  setTimeout(() => {
+    if (valEl) valEl.textContent = d.resp;
+    if (outEl) outEl.style.opacity = '1';
+  }, 300);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SECTION 4 — Retry animation
+// ═══════════════════════════════════════════════════════
+function resetRetry() {
+  ['rt0','rt1','rt2','rt3'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = 'rt-circle';
+    if (i === 3) el.innerHTML = '&#10003;';
+    else el.textContent = i + 1;
+  });
+  ['rl0','rl1','rl2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.width = '0%';
+  });
+  ['rd0','rd1','rd2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  });
+  ['rl1a','rl2a','rl3a','rl4a','rl5a','rl6a','rl7a'].forEach(id => {
+    document.getElementById(id)?.classList.remove('show');
+  });
+}
+
+function runRetryAnim() {
+  const btn = document.getElementById('btnRetry');
+  if (btn) btn.disabled = true;
+  resetRetry();
+
+  const steps = [
+    { circle:'rt0', cls:'active',  line:null,  delay_el:null,  log:'rl1a', wait:600  },
+    { circle:'rt0', cls:'fail',    line:'rl0', delay_el:'rd0', log:'rl2a', wait:200  },
+    { circle:null,  cls:null,      line:null,  delay_el:null,  log:'rl3a', wait:700  },
+    { circle:'rt1', cls:'active',  line:null,  delay_el:null,  log:'rl4a', wait:600  },
+    { circle:'rt1', cls:'fail',    line:'rl1', delay_el:'rd1', log:'rl5a', wait:200  },
+    { circle:null,  cls:null,      line:null,  delay_el:null,  log:'rl6a', wait:900  },
+    { circle:'rt2', cls:'ok',      line:'rl2', delay_el:'rd2', log:'rl7a', wait:0    },
+    { circle:'rt3', cls:'ok',      line:null,  delay_el:null,  log:null,   wait:0    },
+  ];
+
+  let i = 0;
+  const delays = [0, 300, 200, 500, 300, 200, 600, 400];
+
+  function nextStep() {
+    if (i >= steps.length) {
+      if (btn) btn.disabled = false;
+      return;
+    }
+    const s = steps[i];
+    setTimeout(() => {
+      if (s.circle) {
+        const el = document.getElementById(s.circle);
+        if (el) {
+          el.className = 'rt-circle ' + s.cls;
+          if (s.cls === 'ok' && s.circle === 'rt3') el.innerHTML = '&#10003;';
+        }
+      }
+      if (s.line) {
+        const lel = document.getElementById(s.line);
+        if (lel) { setTimeout(() => lel.style.width = '100%', 50); }
+      }
+      if (s.delay_el) {
+        const del = document.getElementById(s.delay_el);
+        if (del) del.classList.add('show');
+      }
+      if (s.log) {
+        document.getElementById(s.log)?.classList.add('show');
+      }
+      i++;
+      nextStep();
+    }, delays[i]);
+  }
+  nextStep();
+}
+
+// ═══════════════════════════════════════════════════════
+//  SECTION 5 — Typed response reveal
+// ═══════════════════════════════════════════════════════
+function runTypedAnim() {
+  const btn = document.getElementById('btnTyped');
+  if (btn) btn.disabled = true;
+  const fields = ['tf1','tf2','tf3','tf4','tf5','tf6','tf7'];
+  fields.forEach(id => document.getElementById(id)?.classList.remove('show'));
+
+  const dateEl = document.getElementById('tfDate');
+  if (dateEl) {
+    const now = new Date();
+    dateEl.textContent = `datetime(${now.getFullYear()}, ${now.getMonth()+1}, ${now.getDate()}, tzinfo=utc)`;
+  }
+
+  fields.forEach((id, i) => {
+    setTimeout(() => {
+      document.getElementById(id)?.classList.add('show');
+      if (i === fields.length - 1 && btn) btn.disabled = false;
+    }, i * 220 + 200);
+  });
+}
+// auto-reveal on scroll into view
+const typedObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { setTimeout(runTypedAnim, 500); typedObs.disconnect(); } });
+}, { threshold: 0.3 });
+const s5el = document.getElementById('s5');
+if (s5el) typedObs.observe(s5el);
+
+// ═══════════════════════════════════════════════════════
+//  SECTION 6 — Operation modes pulse
+// ═══════════════════════════════════════════════════════
+const modeTexts = {
+  mc1: [
+    'Pass a string or list of ChatMessage objects. Supports model, temperature, max_output_tokens, metadata...',
+    'Internally builds a ChatRequest(frozen dataclass), calls run_with_retry → provider.chat(request)...',
+    'Returns AIResponse with .content .provider .model .tokens_input .tokens_output .created_at ...'
+  ],
+  mc2: [
+    'Pass a string or list of strings. Returns vectors: list[list[float]] — one vector per input text...',
+    'Internally builds EmbedRequest, validates input is non-empty, delegates to provider.embed(request)...',
+    'Returns EmbeddingResponse with .vectors .provider .model .created_at — frozen, typed, predictable...'
+  ],
+  mc3: [
+    'Call any registered local AI function by name. Pass arguments as a dict. Returns result + provider metadata...',
+    'Builds FunctionCallRequest, strips function_name, validates non-empty, routes to provider.call_function()...',
+    'Returns FunctionCallResponse with .function_name .provider .result .created_at — fully typed...'
+  ]
+};
+const modeCycle = { mc1: 0, mc2: 0, mc3: 0 };
+let modesTimer = null;
+
+function runModesAnim() {
+  const btn = document.getElementById('btnModes');
+  if (btn) btn.disabled = true;
+  if (modesTimer) clearInterval(modesTimer);
+  ['mc1','mc2','mc3'].forEach(id => document.getElementById(id)?.classList.remove('lit'));
+  let seq = [
+    { id:'mc1', delay:0 },
+    { id:'mc2', delay:600 },
+    { id:'mc3', delay:1200 },
+    { id:'mc1', delay:2000 },
+    { id:'mc2', delay:2600 },
+    { id:'mc3', delay:3200 },
+  ];
+  seq.forEach(({ id, delay }) => {
+    setTimeout(() => {
+      ['mc1','mc2','mc3'].forEach(x => document.getElementById(x)?.classList.remove('lit'));
+      const el = document.getElementById(id);
+      if (el) el.classList.add('lit');
+      const rEl = document.getElementById(id + 'r');
+      if (rEl) {
+        const texts = modeTexts[id];
+        modeCycle[id] = (modeCycle[id] + 1) % texts.length;
+        rEl.style.opacity = '0';
+        setTimeout(() => {
+          rEl.textContent = texts[modeCycle[id]];
+          rEl.style.opacity = '1';
+          rEl.style.transition = 'opacity .3s';
+        }, 150);
+      }
+    }, delay);
+  });
+  setTimeout(() => {
+    ['mc1','mc2','mc3'].forEach(x => document.getElementById(x)?.classList.remove('lit'));
+    if (btn) btn.disabled = false;
+  }, 4000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  LIVE CLOCK in typed response date field
+// ═══════════════════════════════════════════════════════
+setInterval(() => {
+  const dateEl = document.getElementById('tfDate');
+  if (dateEl && dateEl.textContent.startsWith('datetime(')) {
+    const now = new Date();
+    dateEl.textContent = `datetime(${now.getFullYear()}, ${now.getMonth()+1}, ${now.getDate()}, tzinfo=utc)`;
+  }
+}, 1000);
+
+// ═══════════════════════════════════════════════════════
+//  ARCHITECT LAYER — hover glow
+// ═══════════════════════════════════════════════════════
+document.querySelectorAll('.arch-chip').forEach(chip => {
+  chip.addEventListener('mouseenter', () => {
+    chip.style.color = 'var(--text)';
+    chip.style.borderColor = 'rgba(99,102,241,0.5)';
+    chip.style.background = 'rgba(99,102,241,0.1)';
+    chip.style.boxShadow = '0 0 16px rgba(99,102,241,0.2)';
+  });
+  chip.addEventListener('mouseleave', () => {
+    chip.style.color = '';
+    chip.style.borderColor = '';
+    chip.style.background = '';
+    chip.style.boxShadow = '';
+  });
+});
+</script>
+</body>
+</html>
