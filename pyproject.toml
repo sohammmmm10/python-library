@@ -1,10 +1,10 @@
-﻿[build-system]
+[build-system]
 requires = ["hatchling>=1.25.0"]
 build-backend = "hatchling.build"
 
 [project]
 name = "ai-bridge-kit"
-version = "0.1.0"
+version = "0.1.1"
 description = "Unified Python bridge for integrating AI providers and custom AI functions."
 readme = "README.md"
 requires-python = ">=3.10"
