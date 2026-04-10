@@ -3,7 +3,6 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-.Python
 *.so
 
 # Virtual environments
@@ -25,13 +24,20 @@ htmlcov/
 .vscode/
 .idea/
 *.swp
-*.swo
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Promo / announcement files (not part of the library)
+# Source code (kept private — distributed via PyPI only)
+src/
+tests/
+examples/
+.github/
+pyproject.toml
+RELEASE.md
+
+# Promo files
 *.html
 netlify-deploy/
 .pypirc.template
