@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ai-bridge-kit"
-version = "0.1.1"
+version = "0.1.2"
 description = "Unified Python bridge for integrating AI providers and custom AI functions."
 readme = "README.md"
 requires-python = ">=3.10"
