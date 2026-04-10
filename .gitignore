@@ -1,7 +1,42 @@
+# Python
 __pycache__/
-*.pyc
-.pytest_cache/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Virtual environments
 .venv/
+venv/
+env/
+
+# Build artifacts
 dist/
 build/
 *.egg-info/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Promo / announcement files (not part of the library)
+*.html
+netlify-deploy/
+.pypirc.template
+PATENT_DISCLOSURE_TEMPLATE.md
+
+# Secrets
+.env
+.env.*
