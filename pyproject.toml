@@ -1,4 +1,4 @@
-[build-system]
+﻿[build-system]
 requires = ["hatchling>=1.25.0"]
 build-backend = "hatchling.build"
 
@@ -30,9 +30,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/sohamdahivalkar/ai-bridge-kit"
-Repository = "https://github.com/sohamdahivalkar/ai-bridge-kit"
-Issues = "https://github.com/sohamdahivalkar/ai-bridge-kit/issues"
+Homepage = "https://github.com/sohammmmm10/python-library"
+Repository = "https://github.com/sohammmmm10/python-library"
+Issues = "https://github.com/sohammmmm10/python-library/issues"
 
 [project.optional-dependencies]
 openai = ["openai>=1.56.0"]
