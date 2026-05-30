@@ -29,19 +29,12 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# Source code (kept private — distributed via PyPI only)
-src/
-tests/
-examples/
-.github/
-pyproject.toml
-RELEASE.md
-
 # Promo files
 *.html
 netlify-deploy/
 .pypirc.template
 PATENT_DISCLOSURE_TEMPLATE.md
+RELEASE.md
 
 # Secrets
 .env
